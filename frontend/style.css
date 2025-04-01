@@ -1,0 +1,49 @@
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.flowchart-container {
+    min-height: 500px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    overflow: auto;
+    background-color: #fff;
+}
+
+.flowchart-card {
+    height: 100%;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.flowchart-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.flowchart-preview {
+    height: 200px;
+    overflow: hidden;
+    border-bottom: 1px solid #eee;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+#loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.card {
+    height: 100%;
+}
+
+.card-body {
+    position: relative;
+}

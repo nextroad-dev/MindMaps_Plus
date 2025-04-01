@@ -1,23 +1,44 @@
-import React, { useState } from "react";
-import CodeMirror from "@uiw/react-codemirror";
-import { python } from "@codemirror/lang-python";
-import { vscodeDark } from "@uiw/codemirror-theme-vscode";
+import React, { useEffect, useRef } from 'react';
+import * as monaco from 'monaco-editor';
 
 const CodeEditor = ({ setCode }) => {
-  const [code, setLocalCode] = useState("");
+  const editorRef = useRef(null);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      editorRef.current = monaco.editor.create(containerRef.current, {
+        value: '# 在此处输入Python代码\n\ndef example():\n    print("Hello World!")\n    return True',
+        language: 'python',
+        theme: 'vs-dark',
+        automaticLayout: true,
+        minimap: { enabled: true },
+        scrollBeyondLastLine: false,
+        fontSize: 14,
+      });
+
+      // 当编辑器内容改变时更新code状态
+      editorRef.current.onDidChangeModelContent(() => {
+        setCode(editorRef.current.getValue());
+      });
+      
+      // 初始化时设置初始值
+      setCode(editorRef.current.getValue());
+    }
+
+    return () => {
+      if (editorRef.current) {
+        editorRef.current.dispose();
+      }
+    };
+  }, [setCode]);
 
   return (
-    <div className="p-4">
-      <h2 className="text-lg font-bold mb-2">输入代码</h2>
-      <CodeMirror
-        value={code}
-        height="300px"
-        extensions={[python()]}
-        theme={vscodeDark}
-        onChange={(value) => {
-          setLocalCode(value);
-          setCode(value);
-        }}
+    <div className="w-full max-w-4xl">
+      <div 
+        ref={containerRef} 
+        className="border border-gray-300 rounded-md" 
+        style={{ height: '400px' }}
       />
     </div>
   );
