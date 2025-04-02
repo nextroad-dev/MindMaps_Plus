@@ -65,6 +65,7 @@ def generate_prompt(code: str, language: str) -> str:
 3. 使用适当的图形元素表示条件、循环和函数
 4. 保持流程图简洁清晰，避免过度复杂
 5. 不要包含任何解释文本，只返回流程图代码
+6. 保证你的输出内容可以直接在mermaid version 10.9.3中显示
 """
 
 def clean_mermaid_code(raw_code: str) -> str:

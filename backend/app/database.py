@@ -44,18 +44,38 @@ def save_flowchart(flowchart: SavedFlowchart, db: Session) -> SavedFlowchart:
     if not flowchart.id:
         flowchart.id = str(uuid.uuid4())
     
-    db_flowchart = FlowchartModel(
-        id=flowchart.id,
-        title=flowchart.title,
-        description=flowchart.description,
-        code_snippet=flowchart.code_snippet,
-        language=flowchart.language,
-        mermaid_code=flowchart.mermaid_code,
-        created_at=flowchart.created_at,
-        updated_at=datetime.now()
-    )
+    # 设置时间戳
+    now = datetime.now()
+    if not flowchart.created_at:
+        flowchart.created_at = now
+    flowchart.updated_at = now
     
-    db.add(db_flowchart)
+    # 检查是否已存在
+    existing = db.query(FlowchartModel).filter(FlowchartModel.id == flowchart.id).first()
+    
+    if existing:
+        # 更新现有记录
+        existing.title = flowchart.title
+        existing.description = flowchart.description
+        existing.code_snippet = flowchart.code_snippet
+        existing.language = flowchart.language
+        existing.mermaid_code = flowchart.mermaid_code
+        existing.updated_at = flowchart.updated_at
+        db_flowchart = existing
+    else:
+        # 创建新记录
+        db_flowchart = FlowchartModel(
+            id=flowchart.id,
+            title=flowchart.title,
+            description=flowchart.description,
+            code_snippet=flowchart.code_snippet,
+            language=flowchart.language,
+            mermaid_code=flowchart.mermaid_code,
+            created_at=flowchart.created_at,
+            updated_at=flowchart.updated_at
+        )
+        db.add(db_flowchart)
+    
     db.commit()
     db.refresh(db_flowchart)
     

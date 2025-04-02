@@ -1,52 +1,68 @@
+// API 通信
 const API_URL = 'http://localhost:8000/api';
 
-/**
- * 分析代码生成流程图
- * @param {string} code - 源代码
- * @param {string} language - 编程语言
- * @param {string} description - 描述(可选)
- * @returns {Promise} - 返回结果Promise
- */
-async function analyzeCode(code, language, description = '') {
+// 分析代码
+async function analyzeCode(code, language) {
     try {
         const response = await fetch(`${API_URL}/analyze`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ code, language, description }),
+            body: JSON.stringify({
+                code: code,
+                language: language
+            })
         });
-        
+
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || '分析代码时发生错误');
+            const errorText = await response.text();
+            console.error('API 错误:', errorText);
+            throw new Error(`API请求失败: ${response.status}`);
         }
-        
+
         return await response.json();
     } catch (error) {
-        console.error('分析代码失败:', error);
+        console.error('分析代码时出错:', error);
         throw error;
     }
 }
 
-/**
- * 保存流程图
- * @param {Object} flowchart - 流程图数据
- * @returns {Promise} - 返回结果Promise
- */
-async function saveFlowchart(flowchart) {
+// 保存流程图
+async function saveFlowchart(title, description, codeSnippet, language, mermaidCode) {
     try {
+        // 关键修改：字段名称从驼峰命名改为下划线命名
+        const now = new Date().toISOString();
+        const payload = {
+            title: title || "未命名流程图",
+            description: description || "",
+            code_snippet: codeSnippet || "",  // 修改为下划线命名
+            language: language || "",
+            mermaid_code: mermaidCode || "",  // 修改为下划线命名
+            created_at: now,  // 修改为下划线命名
+            updated_at: now   // 修改为下划线命名
+        };
+
+        console.log("发送保存请求: ", payload);  // 调试用
+
         const response = await fetch(`${API_URL}/flowcharts`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(flowchart),
+            body: JSON.stringify(payload),
         });
         
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || '保存流程图时发生错误');
+            if (response.headers.get("content-type")?.includes("application/json")) {
+                const errorData = await response.json();
+                console.error("保存错误详情:", errorData);
+                throw new Error(errorData.detail || '保存流程图时发生错误');
+            } else {
+                const errorText = await response.text();
+                console.error("保存错误响应:", errorText);
+                throw new Error(`保存失败: ${response.status}`);
+            }
         }
         
         return await response.json();
